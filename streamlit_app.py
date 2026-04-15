@@ -1,30 +1,43 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 
-# Configuration de la page
-st.set_page_config(page_title="FraîchVrac App", page_icon="🥛")
+# 1. Configuration de la page (onglet du navigateur)
+st.set_page_config(
+    page_title="FraîchVrac App",
+    page_icon="🥛",
+    layout="centered"
+)
 
+# 2. Titre principal et style
 st.title("🥛 FraîchVrac - Ton App Compagnon")
+st.write("Bienvenue Marcel ! Trouve ton lait frais, local et sans déchet.")
 
-# Menu de navigation sur le côté
-menu = st.sidebar.radio("Navigation", ["📍 Trouver un distributeur", "🔍 Scanner & Provenance", "🎁 Ma Fidélité"])
+# 3. Menu de navigation sur le côté (Sidebar)
+st.sidebar.header("Menu")
+menu = st.sidebar.radio(
+    "Navigation", 
+    ["📍 Trouver un distributeur", "🔍 Scanner & Provenance", "🎁 Ma Fidélité"]
+)
 
+# --- SECTION 1 : CARTE ET STOCKS ---
 if menu == "📍 Trouver un distributeur":
     st.header("Où est mon lait local ?")
-    st.write("Localise les distributeurs FraîchVrac les plus proches de toi[cite: 49, 61].")
+    st.write("Localise les distributeurs FraîchVrac les plus proches de toi.")
     
-    # Création des données pour la carte (Exemple de coordonnées à Lille/Icam)
+    # Données pour la carte (Coordonnées de test autour de Lille/Icam)
+    # Utilisation de LAT et LON pour assurer la compatibilité
     map_data = pd.DataFrame({
-        'lat': [50.633, 50.629, 50.637],
-        'lon': [3.058, 3.055, 3.065],
-        'nom': ['Marché Central', 'Place de la Mairie', 'Près de l\'Icam']
+        'LAT': [50.633, 50.629, 50.637],
+        'LON': [3.058, 3.055, 3.065],
+        'Nom': ['Marché Central', 'Place de la Mairie', 'Icam']
     })
 
-    # Affichage de la carte 
-    st.map(map_data)
+    # Affichage de la carte avec un zoom forcé à 13 (ville/quartier)
+    st.map(map_data, zoom=13)
     
-    st.subheader("État des stocks en temps réel")
+    st.divider()
+    
+    st.subheader("📊 État des stocks en temps réel")
     stocks = pd.DataFrame({
         'Distributeur': ['Marché Central', 'Place de la Mairie', 'Icam'],
         'Distance': ['400m', '1.2km', '2.5km'],
@@ -32,29 +45,52 @@ if menu == "📍 Trouver un distributeur":
         'Hygiène UV': ['✅ OK', '✅ OK', '⏳ Cycle en cours']
     })
     st.table(stocks)
+    st.info("💡 Le distributeur du Marché Central est bientôt vide, dépêche-toi !")
 
+# --- SECTION 2 : PROVENANCE ET SCAN ---
 elif menu == "🔍 Scanner & Provenance":
     st.header("Traçabilité du produit")
-    st.write("Scannez le QR Code sur la machine pour tout savoir sur votre lait[cite: 43, 69].")
+    st.write("Scannez le QR Code sur la machine pour tout savoir sur votre lait.")
     
-    if st.button("Simuler le scan du distributeur"):
-        st.divider()
-        st.subheader("🏠 Provenance & Origine")
+    # Simulation d'un scan
+    if st.button("📱 Simuler le scan du QR Code"):
+        st.success("✅ Connexion au distributeur établie !")
         
-        # Détails de provenance basés sur votre projet 
+        st.subheader("🏠 Origine du Lait")
         col1, col2 = st.columns(2)
         with col1:
-            st.write("**Producteur :** Ferme des Peupliers")
-            st.write("**Lieu :** Verlinghem (12 km)")
+            st.write("**Producteur :** La Ferme des Peupliers")
+            st.write("**Localisation :** Verlinghem (12 km)")
+            st.write("**Label :** Agriculture Biologique 🌿")
         with col2:
-            st.write("**Collecte :** Ce matin à 05h30")
-            st.write("**Label :** Agriculture Biologique")
-            
-        st.success("🛡️ Hygiène certifiée par lampes UV-C.")
-        st.info("Ce lait est vendu 1.20€ / Litre (Économie de 0.30€ vs supermarché)[cite: 79].")
+            st.write("**Heure de collecte :** 05:30 ce matin")
+            st.write("**Température cuve :** 3.2°C")
+            st.write("**DLC :** Dans 4 jours")
 
+        st.divider()
+        
+        st.subheader("🛡️ Hygiène & Sécurité")
+        st.info("Ce distributeur a été désinfecté par lampes UV-C à 14h20 après le dernier passage.")
+        
+        st.subheader("💰 Ton impact")
+        st.write("- **Prix :** 1.20€ / Litre")
+        st.write("- **Économie :** -0.35€ par rapport au supermarché.")
+
+# --- SECTION 3 : FIDÉLITÉ ---
 elif menu == "🎁 Ma Fidélité":
-    st.header("Mes Points FraîchVrac")
-    st.metric(label="Mes Points", value="150 pts")
-    st.write("Marcel, tu as déjà évité l'utilisation de **12 bouteilles en plastique** ! [cite: 83]")
+    st.header("Espace Marcel - Fidélité")
+    
+    # Indicateurs clés
+    col1, col2 = st.columns(2)
+    col1.metric(label="Mes Points", value="150 pts", delta="+10 pts")
+    col2.metric(label="Plastique évité", value="12 kg", delta="1.5 kg")
+    
+    st.write("### Ton prochain cadeau")
+    st.write("Encore 50 points pour obtenir un litre gratuit !")
     st.progress(75)
+    
+    st.divider()
+    
+    st.write("🏆 **Derniers badges obtenus :**")
+    st.write("- 🥛 **Apprenti Vracqueur** (1er achat)")
+    st.write("- 🚜 **Ami des Fermiers** (5 achats locaux)")
